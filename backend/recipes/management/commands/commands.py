@@ -14,7 +14,8 @@ class Command(BaseCommand):
     help = "Создает тестовых пользователей и рецепты"
 
     def handle(self, *args, **kwargs):
-        if Recipe.objects.filter(author__username__startswith="test_user").exists():
+        if Recipe.objects.filter(
+                author__username__startswith="test_user").exists():
             self.stdout.write(
                 self.style.WARNING(
                     "Тестовые данные уже существуют. Пропускаем создание."
@@ -43,7 +44,8 @@ class Command(BaseCommand):
         ingredients = list(Ingredient.objects.all())
         if not ingredients:
             self.stdout.write(
-                self.style.ERROR("Не найдены ингредиенты в базе. Сначала загрузите их.")
+                self.style.ERROR(
+                    "Не найдены ингредиенты в базе. Сначала загрузите их.")
             )
             return
 
@@ -52,31 +54,37 @@ class Command(BaseCommand):
         recipe_templates = [
             {
                 "name": "Омлет с помидорами",
-                "text": "Взбейте яйца, добавьте соль и перец. Нарежьте помидоры кубиками. Обжарьте на сковороде, залейте яйцами и готовьте до золотистой корочки.",
+                "text": "Взбейте яйца, добавьте соль и перец. Нарежьте "
+                        "помидоры кубиками. Обжарьте на сковороде, залейте "
+                        "яйцами и готовьте до золотистой корочки.",
                 "cooking_time": 15,
-                "color": (255, 200, 100),  # Цвет для генерации изображения
+                "color": (255, 200, 100),
             },
             {
                 "name": 'Салат "Цезарь"',
-                "text": "Нарежьте салат, курицу и помидоры. Добавьте сухарики и заправьте специальным соусом.",
+                "text": "Нарежьте салат, курицу и помидоры. Добавьте "
+                        "сухарики и заправьте специальным соусом.",
                 "cooking_time": 20,
                 "color": (100, 200, 100),
             },
             {
                 "name": "Паста карбонара",
-                "text": "Отварите макароны. Обжарьте бекон, смешайте с яйцом и сыром. Добавьте к макаронам и перемешайте.",
+                "text": "Отварите макароны. Обжарьте бекон, смешайте с "
+                        "яйцом и сыром. Добавьте к макаронам и перемешайте.",
                 "cooking_time": 25,
                 "color": (220, 180, 140),
             },
             {
                 "name": "Тирамису",
-                "text": "Смешайте маскарпоне с яйцами и сахаром. Пропитайте печенье кофе и ликером. Выложите слоями в форму.",
+                "text": "Смешайте маскарпоне с яйцами и сахаром. Пропитайте "
+                        "печенье кофе и ликером. Выложите слоями в форму.",
                 "cooking_time": 240,
                 "color": (160, 120, 90),
             },
             {
                 "name": "Овощное рагу",
-                "text": "Нарежьте овощи, обжарьте на оливковом масле, добавьте специи и томите до готовности.",
+                "text": "Нарежьте овощи, обжарьте на оливковом масле, "
+                        "добавьте специи и томите до готовности.",
                 "cooking_time": 45,
                 "color": (120, 180, 70),
             },
@@ -111,15 +119,19 @@ class Command(BaseCommand):
             )
             for ingredient in selected_ingredients:
                 RecipeIngredient.objects.create(
-                    recipe=recipe, ingredient=ingredient, amount=random.randint(1, 500)
+                    recipe=recipe,
+                    ingredient=ingredient,
+                    amount=random.randint(1, 500)
                 )
 
             self.stdout.write(
-                f'Создан рецепт "{recipe.name}" для пользователя {user.username}'
+                f'Создан рецепт "{recipe.name}" '
+                f'для пользователя {user.username}'
             )
 
         self.stdout.write(
             self.style.SUCCESS(
-                f"Успешно создано {len(users)} тестовых пользователей и {len(users)} рецептов"
+                f"Успешно создано {len(users)} тестовых "
+                f"пользователей и {len(users)} рецептов"
             )
         )

@@ -19,7 +19,7 @@ class Command(BaseCommand):
         if not os.path.exists(file_path):
             self.stdout.write(self.style.ERROR(
                 f"Файл {file_path} не существует"))
-            # Попробуем другие пути
+
             alternate_paths = [
                 "./data/ingredients.json",
                 "../data/ingredients.json",

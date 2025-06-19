@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Recipe, RecipeIngredient, Favorite, ShoppingCart
+from .models import Recipe, RecipeIngredient
 from ingredients.models import Ingredient
 from users.serializers import UserSerializer
 from utils.serializers import Base64ImageField
@@ -11,14 +11,16 @@ class IngredientInRecipeWriteSerializer(serializers.Serializer):
 
     def validate_id(self, value):
         if not Ingredient.objects.filter(id=value).exists():
-            raise serializers.ValidationError("Ингредиент с таким ID не существует.")
+            raise serializers.ValidationError(
+                "Ингредиент с таким ID не существует.")
         return value
 
 
 class RecipeIngredientSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(source="ingredient.id")
     name = serializers.CharField(source="ingredient.name")
-    measurement_unit = serializers.CharField(source="ingredient.measurement_unit")
+    measurement_unit = serializers.CharField(
+        source="ingredient.measurement_unit")
 
     class Meta:
         model = RecipeIngredient
@@ -33,7 +35,8 @@ class RecipeShortSerializer(serializers.ModelSerializer):
 
 class RecipeSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
-    ingredients = IngredientInRecipeWriteSerializer(many=True, write_only=True)
+    ingredients = IngredientInRecipeWriteSerializer(
+        many=True, write_only=True)
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
     image = Base64ImageField()
@@ -67,8 +70,6 @@ class RecipeSerializer(serializers.ModelSerializer):
                 {"ingredients": "Ингредиенты не должны повторяться."}
             )
 
-        # Удаляем лишнюю проверку времени приготовления, так как она уже есть в поле cooking_time
-
         return data
 
     def get_is_favorited(self, obj):
@@ -98,7 +99,7 @@ class RecipeSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         ingredients_data = validated_data.pop("ingredients")
         image = validated_data.pop("image", None)
-        validated_data.pop("author", None)  # Удаляем author, если он есть
+        validated_data.pop("author", None)
         recipe = Recipe.objects.create(
             author=self.context["request"].user, image=image, **validated_data
         )

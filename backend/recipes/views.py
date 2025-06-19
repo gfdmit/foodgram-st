@@ -24,15 +24,17 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     def get_object(self):
         """
-        Переопределяем метод получения объекта для проверки прав доступа при обновлении.
+        Переопределяем метод получения объекта для
+        проверки прав доступа при обновлении.
         """
         obj = super().get_object()
 
         if (
-            self.request.method in ["PATCH", "PUT", "DELETE"]
-            and obj.author != self.request.user
+                self.request.method in ["PATCH", "PUT", "DELETE"]
+                and obj.author != self.request.user
         ):
-            raise PermissionDenied("У вас нет прав для редактирования этого рецепта")
+            raise PermissionDenied(
+                "У вас нет прав для редактирования этого рецепта")
 
         return obj
 
@@ -61,14 +63,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     def partial_update(self, request, *args, **kwargs):
         """
-        Переопределяем метод частичного обновления для явной проверки авторства.
+        Переопределяем метод частичного обновления
+        для явной проверки авторства.
         """
         pk = kwargs.get("pk")
 
         recipe_exists = Recipe.objects.filter(pk=pk).exists()
 
         if not recipe_exists:
-
             return Response(
                 {"detail": "No Recipe matches the given query."},
                 status=status.HTTP_404_NOT_FOUND,
@@ -86,7 +88,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = Recipe.objects.all()
         is_favorited = self.request.query_params.get("is_favorited")
-        is_in_shopping_cart = self.request.query_params.get("is_in_shopping_cart")
+        is_in_shopping_cart = self.request.query_params.get(
+            "is_in_shopping_cart")
         author_id = self.request.query_params.get("author")
         if is_favorited == "1" and self.request.user.is_authenticated:
             queryset = queryset.filter(favorite__user=self.request.user)
@@ -97,7 +100,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return queryset
 
     @action(
-        detail=True, methods=["post", "delete"], permission_classes=[IsAuthenticated]
+        detail=True,
+        methods=["post", "delete"],
+        permission_classes=[IsAuthenticated]
     )
     def favorite(self, request, pk=None):
         if request.method == "POST":
@@ -105,17 +110,22 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
                 recipe = get_object_or_404(Recipe, pk=pk)
 
-                favorite_exists = request.user.favorites.filter(recipe=recipe).exists()
+                favorite_exists = request.user.favorites.filter(
+                    recipe=recipe).exists()
                 if favorite_exists:
                     return Response(
                         {"errors": "Рецепт уже в избранном"},
                         status=status.HTTP_400_BAD_REQUEST,
                     )
 
-                Favorite.objects.create(user=request.user, recipe=recipe)
-                serializer = RecipeShortSerializer(recipe, context={"request": request})
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            except:
+                Favorite.objects.create(user=request.user,
+                                        recipe=recipe)
+                serializer = RecipeShortSerializer(
+                    recipe,
+                    context={"request": request})
+                return Response(serializer.data,
+                                status=status.HTTP_201_CREATED)
+            except Exception:
                 return Response(
                     {"detail": "No Recipe matches the given query."},
                     status=status.HTTP_404_NOT_FOUND,
@@ -135,14 +145,15 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
                 favorite.delete()
                 return Response(status=status.HTTP_204_NO_CONTENT)
-            except:
+            except Exception:
                 return Response(
                     {"detail": "No Recipe matches the given query."},
                     status=status.HTTP_404_NOT_FOUND,
                 )
 
     @action(
-        detail=True, methods=["post", "delete"], permission_classes=[IsAuthenticated]
+        detail=True, methods=["post", "delete"],
+        permission_classes=[IsAuthenticated]
     )
     def shopping_cart(self, request, pk=None):
         if request.method == "POST":
@@ -159,11 +170,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
                         status=status.HTTP_400_BAD_REQUEST,
                     )
 
-                # Создаем запись в корзине
-                ShoppingCart.objects.create(user=request.user, recipe=recipe)
-                serializer = RecipeShortSerializer(recipe, context={"request": request})
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            except:
+                ShoppingCart.objects.create(user=request.user,
+                                            recipe=recipe)
+                serializer = RecipeShortSerializer(
+                    recipe,
+                    context={"request": request})
+                return Response(serializer.data,
+                                status=status.HTTP_201_CREATED)
+            except Exception:
                 return Response(
                     {"detail": "No Recipe matches the given query."},
                     status=status.HTTP_404_NOT_FOUND,
@@ -181,24 +195,25 @@ class RecipeViewSet(viewsets.ModelViewSet):
                         status=status.HTTP_400_BAD_REQUEST,
                     )
 
-                # Удаляем запись
                 cart.delete()
                 return Response(status=status.HTTP_204_NO_CONTENT)
-            except:
+            except Exception:
                 return Response(
                     {"detail": "No Recipe matches the given query."},
                     status=status.HTTP_404_NOT_FOUND,
                 )
 
     @action(
-        detail=True, methods=["get"], permission_classes=[AllowAny], url_path="get-link"
+        detail=True, methods=["get"], permission_classes=[AllowAny],
+        url_path="get-link"
     )
-    def get_link(self, request, pk=None):
+    def get_link(self, request):
         recipe = self.get_object()
         link = request.build_absolute_uri(f"/recipes/{recipe.id}/")
         return Response({"short-link": link})
 
-    @action(detail=False, methods=["get"], permission_classes=[IsAuthenticated])
+    @action(detail=False, methods=["get"],
+            permission_classes=[IsAuthenticated])
     def download_shopping_cart(self, request):
         user = request.user
         ingredients = (
@@ -214,5 +229,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 f"{ingredient['total_amount']}\n"
             )
         response = HttpResponse(content, content_type="text/plain")
-        response["Content-Disposition"] = 'attachment; filename="shopping_list.txt"'
+        response["Content-Disposition"] = 'attachment; ' \
+                                          'filename="shopping_list.txt"'
         return response

@@ -3,7 +3,6 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from users.models import User
 from ingredients.models import Ingredient
 
-# Константы для избегания "magic numbers"
 MIN_COOKING_TIME = 1
 MAX_COOKING_TIME = 32000
 MIN_AMOUNT = 1
@@ -12,9 +11,13 @@ MAX_AMOUNT = 32000
 
 class Recipe(models.Model):
     author = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="recipes", verbose_name="Автор"
+        User,
+        on_delete=models.CASCADE,
+        related_name="recipes",
+        verbose_name="Автор"
     )
-    name = models.CharField(max_length=200, verbose_name="Название", db_index=True)
+    name = models.CharField(max_length=200,
+                            verbose_name="Название", db_index=True)
     image = models.ImageField(upload_to="recipes/", verbose_name="Картинка")
     text = models.TextField(verbose_name="Описание")
     ingredients = models.ManyToManyField(
@@ -24,16 +27,19 @@ class Recipe(models.Model):
         validators=[
             MinValueValidator(
                 MIN_COOKING_TIME,
-                message=f"Минимальное время приготовления {MIN_COOKING_TIME} минута",
+                message=f"Минимальное время приготовления "
+                        f"{MIN_COOKING_TIME} минута",
             ),
             MaxValueValidator(
                 MAX_COOKING_TIME,
-                message=f"Максимальное время приготовления {MAX_COOKING_TIME} минут",
+                message=f"Максимальное время приготовления "
+                        f"{MAX_COOKING_TIME} минут",
             ),
         ],
         verbose_name="Время приготовления (мин)",
     )
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
+    created_at = models.DateTimeField(auto_now_add=True,
+                                      verbose_name="Дата создания")
 
     class Meta:
         verbose_name = "Рецепт"
@@ -60,10 +66,12 @@ class RecipeIngredient(models.Model):
     amount = models.PositiveSmallIntegerField(
         validators=[
             MinValueValidator(
-                MIN_AMOUNT, message=f"Минимальное количество ингредиента {MIN_AMOUNT}"
+                MIN_AMOUNT, message=f"Минимальное количество "
+                                    f"ингредиента {MIN_AMOUNT}"
             ),
             MaxValueValidator(
-                MAX_AMOUNT, message=f"Максимальное количество ингредиента {MAX_AMOUNT}"
+                MAX_AMOUNT, message=f"Максимальное количество "
+                                    f"ингредиента {MAX_AMOUNT}"
             ),
         ],
         verbose_name="Количество",
@@ -75,7 +83,8 @@ class RecipeIngredient(models.Model):
         ordering = ["recipe", "ingredient"]
         constraints = [
             models.UniqueConstraint(
-                fields=["recipe", "ingredient"], name="unique_recipe_ingredient"
+                fields=["recipe", "ingredient"],
+                name="unique_recipe_ingredient"
             )
         ]
 
@@ -90,14 +99,16 @@ class Favorite(models.Model):
         related_name="favorites",
         verbose_name="Пользователь",
     )
-    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, verbose_name="Рецепт")
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE,
+                               verbose_name="Рецепт")
 
     class Meta:
         verbose_name = "Избранное"
         verbose_name_plural = "Избранное"
         ordering = ["-id"]
         constraints = [
-            models.UniqueConstraint(fields=["user", "recipe"], name="unique_favorite")
+            models.UniqueConstraint(fields=["user", "recipe"],
+                                    name="unique_favorite")
         ]
 
     def __str__(self):
