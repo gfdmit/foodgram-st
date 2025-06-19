@@ -1,7 +1,7 @@
 from django.http import JsonResponse
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
-from users.models import User, Subscription
+from users.models import User
 from subscriptions.serializers import SubscriptionSerializer
 from foodgram_backend.pagination import CustomPagination
 
