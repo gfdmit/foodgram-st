@@ -13,7 +13,8 @@ class User(AbstractUser):
     last_name = models.CharField(max_length=150, verbose_name="Фамилия")
     description = models.TextField(blank=True, verbose_name="О себе")
     avatar = models.ImageField(
-        upload_to="users/avatars/", blank=True, null=True, verbose_name="Аватар"
+        upload_to="users/avatars/", blank=True, null=True,
+        verbose_name="Аватар"
     )
 
     class Meta:
@@ -36,7 +37,8 @@ class Subscription(models.Model):
         verbose_name="Подписчик",
     )
     subscriber = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="subscribers", verbose_name="Автор"
+        User, on_delete=models.CASCADE, related_name="subscribers",
+        verbose_name="Автор"
     )
 
     class Meta:

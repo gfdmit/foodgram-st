@@ -14,7 +14,8 @@ class UserViewSet(viewsets.ModelViewSet):
     permission_classes = [AllowAny]
 
     @action(
-        detail=True, methods=["post", "delete"], permission_classes=[IsAuthenticated]
+        detail=True, methods=["post", "delete"],
+        permission_classes=[IsAuthenticated]
     )
     @csrf_exempt
     def subscribe(self, request, pk=None):
@@ -31,16 +32,19 @@ class UserViewSet(viewsets.ModelViewSet):
             )
             if not created:
                 return Response(
-                    {"error": "Вы уже подписаны"}, status=status.HTTP_400_BAD_REQUEST
+                    {"error": "Вы уже подписаны"},
+                    status=status.HTTP_400_BAD_REQUEST
                 )
 
-            serializer = SubscriptionSerializer(author, context={"request": request})
+            serializer = SubscriptionSerializer(author,
+                                                context={"request": request})
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         if request.method == "DELETE":
             subscription = user.subscriptions.filter(subscriber=author)
             if not subscription.exists():
                 return Response(
-                    {"error": "Вы не подписаны"}, status=status.HTTP_400_BAD_REQUEST
+                    {"error": "Вы не подписаны"},
+                    status=status.HTTP_400_BAD_REQUEST
                 )
             subscription.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
@@ -60,10 +64,13 @@ class UserViewSet(viewsets.ModelViewSet):
                     {"avatar": ["This field is required."]},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
-            serializer = AvatarSerializer(user, data=request.data, partial=True)
+            serializer = AvatarSerializer(user,
+                                          data=request.data,
+                                          partial=True)
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.data,
+                            status=status.HTTP_200_OK)
         elif request.method == "DELETE":
             if user.avatar:
                 user.avatar.delete()
@@ -71,5 +78,6 @@ class UserViewSet(viewsets.ModelViewSet):
                 user.save()
                 return Response(status=status.HTTP_204_NO_CONTENT)
             return Response(
-                {"error": "Аватар не установлен"}, status=status.HTTP_400_BAD_REQUEST
+                {"error": "Аватар не установлен"},
+                status=status.HTTP_400_BAD_REQUEST
             )

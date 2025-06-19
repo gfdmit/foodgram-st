@@ -17,12 +17,6 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
-from django.http import JsonResponse
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
-from users.models import User, Subscription
-from subscriptions.serializers import SubscriptionSerializer
-from rest_framework.pagination import PageNumberPagination
 
 
 urlpatterns = [

@@ -1,7 +1,7 @@
 import re
 from rest_framework import serializers
 from djoser.serializers import UserCreateSerializer as BaseUserCreateSerializer
-from .models import User, Subscription
+from .models import User
 from utils.serializers import Base64ImageField
 from rest_framework.exceptions import AuthenticationFailed
 
@@ -11,15 +11,16 @@ class CustomUserCreateSerializer(BaseUserCreateSerializer):
         model = User
         fields = ("id", "email", "username", "first_name", "last_name", "password")
         extra_kwargs = {"password": {"write_only": True}}
-    
+
     def validate_username(self, value):
-            """Валидация поля username по регулярному выражению."""
-            if not re.match(r'^[\w.@+-]+$', value):
-                raise serializers.ValidationError(
-                    'Имя пользователя может содержать только буквы, цифры и символы @/./+/-/_'
-                )
-            return value
-    
+        """Валидация поля username по регулярному выражению."""
+        if not re.match(r'^[\w.@+-]+$', value):
+            raise serializers.ValidationError(
+                'Имя пользователя может содержать только буквы, '
+                'цифры и символы @/./+/-/_'
+            )
+        return value
+
     def create(self, validated_data):
         user = User.objects.create_user(
             username=validated_data["username"],
@@ -56,7 +57,8 @@ class UserSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         if instance.is_anonymous:
-            raise AuthenticationFailed("Authentication credentials were not provided.")
+            raise AuthenticationFailed(
+                "Authentication credentials were not provided.")
         return super().to_representation(instance)
 
     def get_is_subscribed(self, obj):
